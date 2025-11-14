@@ -13,6 +13,8 @@ x-base_service: &base_service
               - driver: nvidia
                 device_ids: ['0']
                 capabilities: [compute, utility]
+    networks:
+      - ai-net
 
 name: webui-docker
 
@@ -22,12 +24,15 @@ services:
     profiles: ["download"]
     volumes:
       - *v1
+    networks:
+      - ai-net
 
   auto: &automatic
     <<: *base_service
     profiles: ["auto"]
     build: ./services/AUTOMATIC1111
     image: sd-auto:78
+    container_name: sd-auto
     environment:
       - CLI_ARGS=--allow-code --medvram --xformers --enable-insecure-extension-access --api
 
@@ -43,6 +48,7 @@ services:
     profiles: ["comfy"]
     build: ./services/comfy/
     image: sd-comfy:7
+    container_name: sd-comfy
     environment:
       - CLI_ARGS=
 
@@ -53,3 +59,8 @@ services:
     deploy: {}
     environment:
       - CLI_ARGS=--cpu
+
+
+networks:
+  ai-net:
+    external: true
